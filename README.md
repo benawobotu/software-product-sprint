@@ -1,6 +1,6 @@
 # Google Software Product Sprint
 
-This repo contains the projects Benjamin Awobotu's Projects.
+This repo contains Benjamin Awobotu's Projects.
 
 To get started:
 
