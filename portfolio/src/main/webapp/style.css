@@ -159,7 +159,12 @@ body, html {
   #News {background-color: green;}
   #Contact {background-color: blue;}
   #About {background-color: orange;}
-
+  #data {
+     margin-top: 20px;
+  }
+  #data-container {
+  margin-top: 20px;
+}
   
   /* Style the form element with a border around it */
 form {

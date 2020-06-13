@@ -25,9 +25,36 @@ import java.util.ArrayList;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
+    private ArrayList<String> benjaminList;
+
+  @Override
+  public void init() {
+    benjaminList = new ArrayList<>();
+    benjaminList.add("Benjamin Awobotu");
+    benjaminList.add("Alcorn State University");
+    benjaminList.add("Nigerian");
+  }
+   
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    response.setContentType("text/html;");
-    response.getWriter().println("Hello Benjamin!");
+   
+    String json = convertToJson(benjaminList);
+    response.setContentType("application/json;");
+    response.getWriter().println(json);
+  }
+
+private String convertToJson(ArrayList <String>benjaminList){
+    String json = "{";
+    json += "\"name\": ";
+    json += "\"" + benjaminList.get(0) + "\"";
+    json+= ",";
+    json += "\" Institution\": ";
+    json += "\"" + benjaminList.get(1) + "\"";
+    json += ",";
+    json += "\"Nationality\": ";
+    json += "\"" + benjaminList.get(2)+ "\"";
+    json += "}";
+     return json;
   }
 }
