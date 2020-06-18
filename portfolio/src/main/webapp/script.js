@@ -86,19 +86,18 @@ function addQuoteToDom(quote) {
   const quoteContainer = document.getElementById('data');
   quoteContainer.innerText = quote;
 }
-function getDataServer(){
-    fetch('/data').then(response=>response.json()).then((quote)=> {
-        const statsListElement = document.getElementById('data-container');
-        statsListElement.innerHTML= '';
-        statsListElement.appendChild(
-            createListElement('Name:'+quote.name));
-        statsListElement.appendChild(
-            createListElement('institution:'+quote.institution));
-        statsListElement.appendChild(
-            createListElement('nationality:'+quote.nationality));
+function getDataServer()  {
+    fetch('/data').then(response => response.json()).then((quote) => {
 
-    });
-    
+    const statsListElement = document.getElementById('data-container');
+    statsListElement.innerHTML = '';
+    var i=0;
+    while (quote[i]!= null)  {
+        statsListElement.appendChild(
+            createListElement('comment: ' + quote[i]));
+        i ++;
+    }
+  });
 }
 function createListElement(text){
     const liElement = document.createElement('li');
