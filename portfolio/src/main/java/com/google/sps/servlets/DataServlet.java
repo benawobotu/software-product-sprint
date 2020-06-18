@@ -13,8 +13,15 @@
 // limitations under the License.
 
 package com.google.sps.servlets;
-
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import java.io.IOException;
+import java.util.Arrays;
+import com.google.gson.Gson;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -26,23 +33,38 @@ import java.util.ArrayList;
 public class DataServlet extends HttpServlet {
 
     private ArrayList<String> benjaminList;
+    
+
 
   @Override
   public void init() {
     benjaminList = new ArrayList<>();
-    benjaminList.add("Benjamin Awobotu");
-    benjaminList.add("Alcorn State University");
-    benjaminList.add("Nigerian");
+   
   }
    
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-   
-    String json = convertToJson(benjaminList);
+   Query query = new Query("todoListItem").addSort("timestamp", SortDirection.DESCENDING);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    PreparedQuery results = datastore.prepare(query);
+
+    for (Entity entity : results.asIterable()) {
+      long id = entity.getKey().getId();
+      String comment = (String) entity.getProperty("comment");
+      long timestamp = (long) entity.getProperty("timestamp");
+
+     benjaminList.add(comment);
+    
+    }
+
+    Gson gson = new Gson();
+
     response.setContentType("application/json;");
-    response.getWriter().println(json);
+    response.getWriter().println(gson.toJson(benjaminList));
   }
+   
+  
 
 private String convertToJson(ArrayList <String>benjaminList){
     String json = "{";
@@ -57,4 +79,56 @@ private String convertToJson(ArrayList <String>benjaminList){
     json += "}";
      return json;
   }
+
+
+   @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    long timestamp = System.currentTimeMillis();
+    // Get the input from the form.
+    String text = getParameter(request, "text-input", "");
+    boolean upperCase = Boolean.parseBoolean
+    (getParameter(request, "upper-case", "false"));
+    boolean sort = Boolean.parseBoolean
+    (getParameter(request, "sort", "false"));
+     
+    
+    // Convert the text to upper case.
+    if (upperCase) {
+      text = text.toUpperCase();
+    }
+
+    // Break the text into individual words.
+    String[] words = text.split(",");
+
+    // Sort the words.
+    if (sort) {
+      Arrays.sort(words);
+    }
+   
+     Entity todoListEntity = new Entity("todoListItem");
+     todoListEntity.setProperty(".comment", text);
+     todoListEntity.setProperty("timestamp",timestamp);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(todoListEntity);
+   
+    
+    // Respond with the result.
+    response.setContentType("text/html;");
+    response.getWriter().println(Arrays.toString(words));
+    response.sendRedirect("/index.html");
+  }
+
+  /**
+   * @return the request parameter, or the default value if the parameter
+   *         was not specified by the client
+   */
+  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+    String value = request.getParameter(name);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
+  }
+  
 }
